@@ -1,0 +1,10 @@
+version: "3.3"
+
+services: 
+  gcs-snapshot:
+    image: comworkio/gcs-snapshot:latest
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./service-account-file.json:/service-account-file.json
