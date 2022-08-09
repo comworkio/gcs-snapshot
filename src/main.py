@@ -17,6 +17,6 @@ while True:
     
     if is_not_empty(wait_time):
         log_msg("INFO", "Waiting for {}".format(wait_time))
-        sleep(wait_time)
+        sleep(int(wait_time))
     else:
         sys.exit()

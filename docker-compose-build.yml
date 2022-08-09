@@ -6,7 +6,3 @@ services:
     build: 
       context: .
       dockerfile: Dockerfile
-    volumes:
-      - ./service-account-file.json:/service-account-file.json
-    env_file:
-      - .env
