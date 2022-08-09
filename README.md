@@ -1,4 +1,4 @@
-# gcs-snapshot
+# Gcs Snapshot
 
 Google cloud storage snapshot
 
@@ -23,5 +23,5 @@ cp .env.example .env
 3. Run docker-compose
 
 ```shell
-docker-compose up
+docker-compose up --build --force-recreate
 ```

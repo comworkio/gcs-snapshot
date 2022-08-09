@@ -12,8 +12,10 @@ dest_bucket_prefix = os.environ['GCS_DEST_BUCKET_PREFIX']
 wait_time = os.getenv('WAIT_TIME')
 
 while True:
-    
-    
+    blobs = gcs_client.list_blobs(src_bucket_name)
+
+    for blob in blobs:
+        print(blob.name)
     
     if is_not_empty(wait_time):
         log_msg("INFO", "Waiting for {}".format(wait_time))
