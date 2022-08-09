@@ -2,7 +2,8 @@ FROM python:3-alpine
 
 ENV PYTHONUNBUFFERED=1 \
     PYTHONIOENCODING=UTF-8 \
-    LOG_LEVEL=INFO
+    LOG_LEVEL=INFO \
+    GCS_DEST_DATE_FORMAT=%Y%m%d
 
 COPY ./src /snapshot
 
