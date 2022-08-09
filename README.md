@@ -14,7 +14,6 @@ Google cloud storage snapshot
 
 * `GCP_PROJECT` (required): gcp project
 * `GCS_SRC_BUCKET_NAME` (required): the source bucket you want to snapshot
-* `GCS_DEST_BUCKET_PREFIX` (required): the destination bucket prefix (it'll be concatenate with the current date)
 * `GCS_SNAPSHOT_RETENTION` (required): the number of snapshot to keep
 * `GCS_DEST_DATE_FORMAT` (optional): the date format (default: `%Y%m%d`)
 * `WAIT_TIME` (optional): if you want the pod to stay alive like a service worker, it will wait this time (in seconds). Otherwise, it'll `exit 0` in order to allow you to use the image in a cron job or a pipeline/workflow using something else.
