@@ -14,13 +14,14 @@ mirror:
 deliver:
   stage: deliver
   script:
-    - setsid ./ci/docker-deliver.sh "gcs-snapshot" "0.1"
+    - setsid ./ci/docker-deliver.sh "gcs-snapshot" "1.0"
   only:
     refs:
       - /^(main.*)$/
     changes:
       - .gitlab-ci.yml
       - docker-compose.yml
+      - docker-compose-build.yml
       - ci/docker-deliver.sh
       - Dockerfile
       - src/*

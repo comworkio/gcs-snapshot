@@ -1,6 +1,8 @@
 # Gcs Snapshot
 
-Google cloud storage snapshot
+Google cloud storage snapshots.
+
+It copy a GCS bucket into a new one (with the same name suffixed by `-snap-{date}`) and keep a limited number of snapshots you'll be able to configure.
 
 ## Git repositories
 
@@ -13,6 +15,7 @@ Google cloud storage snapshot
 ## Environment variables
 
 * `GCP_PROJECT` (required): gcp project
+* `GCS_LOCATION`: GCS location (i.e: `europe-west1`)
 * `GCS_SRC_BUCKET_NAME` (required): the source bucket you want to snapshot
 * `GCS_SNAPSHOT_RETENTION` (required): the number of days to keep snapshots
 * `GCS_DEST_DATE_FORMAT` (optional): the date format (default: `%Y%m%d`)

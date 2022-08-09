@@ -13,6 +13,7 @@ wait_time = os.getenv('WAIT_TIME')
 retention = int(os.environ['GCS_SNAPSHOT_RETENTION'])
 date_format = os.environ['GCS_DEST_DATE_FORMAT']
 gcp_project = os.environ['GCP_PROJECT']
+location = os.environ['GCS_LOCATION']
 add_days_to_current_date = os.getenv('ADD_DAYS_TO_CURRENT_DATE')
 
 gcs_client = storage.Client(project = gcp_project)
@@ -31,7 +32,7 @@ while True:
 
     delete_old_buckets(current_datetime, truncated_name, gcs_client, date_format, retention)
 
-    target_bucket = find_or_create_bucket(gcs_client, truncated_name)
+    target_bucket = find_or_create_bucket(gcs_client, location, truncated_name)
 
     for blob in blobs:
         file_name = blob.name

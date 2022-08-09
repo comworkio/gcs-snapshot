@@ -3,7 +3,7 @@ import re
 from datetime import datetime
 from logger_utils import log_msg
 
-def find_or_create_bucket(gcs_client, name):
+def find_or_create_bucket(gcs_client, location, name):
     try:
         target_bucket = gcs_client.get_bucket(name)
         target_bucket.delete(force=True)
@@ -11,7 +11,7 @@ def find_or_create_bucket(gcs_client, name):
         log_msg("INFO", "[find_or_create_bucket] Trying to create bucket {}, e = {}".format(name, e))
     
     target_bucket = gcs_client.bucket(name)
-    target_bucket.create()
+    target_bucket.create(location = location)
     return target_bucket
 
 def delete_old_buckets(current_date, target_name, gcs_client, date_format, retention):
