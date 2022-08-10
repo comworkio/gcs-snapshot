@@ -3,6 +3,20 @@ import re
 from datetime import datetime
 from logger_utils import log_msg
 
+def copy_blobs(gcs_client, src_bucket, target_bucket):
+    blobs = gcs_client.list_blobs(src_bucket.name)
+    for blob in blobs:
+        copy_blob(blob, src_bucket, target_bucket)
+
+def copy_blob(blob, source_bucket, target_bucket):
+    file_name = blob.name
+    log_msg("INFO", "[copy_blob] copy file {}".format(file_name))
+    src_blob = source_bucket.blob(file_name)
+    try:
+        blob_copy = source_bucket.copy_blob(src_blob, target_bucket, file_name)
+    except Exception as e:
+        log_msg("ERROR", "[copy_blob] unexpected error : {}".format(e))
+
 def find_or_create_bucket(gcs_client, location, name):
     try:
         target_bucket = gcs_client.get_bucket(name)

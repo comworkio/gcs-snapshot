@@ -2,7 +2,7 @@ from google.cloud import storage
 from time import sleep, strftime
 from logger_utils import log_msg
 from common_utils import is_not_empty
-from gcs_utils import find_or_create_bucket, delete_old_buckets
+from gcs_utils import find_or_create_bucket, delete_old_buckets, copy_blobs
 
 import os
 import sys
@@ -15,12 +15,16 @@ date_format = os.environ['GCS_DEST_DATE_FORMAT']
 gcp_project = os.environ['GCP_PROJECT']
 location = os.environ['GCS_LOCATION']
 add_days_to_current_date = os.getenv('ADD_DAYS_TO_CURRENT_DATE')
+snapshot_to_restore = os.getenv('SNAPSHOT_TO_RESTORE')
 
 gcs_client = storage.Client(project = gcp_project)
 
 while True:
-    blobs = gcs_client.list_blobs(src_bucket_name)
     source_bucket = gcs_client.bucket(src_bucket_name)
+
+    if is_not_empty(snapshot_to_restore):
+        snapshot_bucket = gcs_client.bucket(snapshot_to_restore)
+        copy_blobs(gcs_client, snapshot_bucket, source_bucket)
 
     current_date = strftime(date_format)
     current_datetime = datetime.datetime.now()
@@ -34,14 +38,7 @@ while True:
 
     target_bucket = find_or_create_bucket(gcs_client, location, truncated_name)
 
-    for blob in blobs:
-        file_name = blob.name
-        log_msg("INFO", "[main] copy file {}".format(file_name))
-        src_blob = source_bucket.blob(file_name)
-        try:
-            blob_copy = source_bucket.copy_blob(src_blob, target_bucket, file_name)
-        except Exception as e:
-            log_msg("ERROR", "[main] unexpected error : {}".format(e))
+    copy_blobs(gcs_client, source_bucket, target_bucket)
 
     if is_not_empty(wait_time):
         log_msg("INFO", "[main] waiting for {}".format(wait_time))
