@@ -2,7 +2,7 @@ from google.cloud import storage
 from time import sleep, strftime
 from logger_utils import log_msg
 from common_utils import is_not_empty
-from gcs_utils import find_or_create_bucket, delete_old_buckets, copy_blobs
+from gcs_utils import recreate_bucket, delete_old_buckets, copy_blobs
 
 import os
 import sys
@@ -19,13 +19,15 @@ snapshot_to_restore = os.getenv('SNAPSHOT_TO_RESTORE')
 
 gcs_client = storage.Client(project = gcp_project)
 
+if is_not_empty(snapshot_to_restore):
+    log_msg("INFO", "Restore {} to {}".format(snapshot_to_restore, src_bucket_name))
+    snapshot_bucket = gcs_client.bucket(snapshot_to_restore)
+    target_bucket = recreate_bucket(gcs_client, location, src_bucket_name)
+    copy_blobs(gcs_client, snapshot_bucket, target_bucket)
+    sys.exit()
+
 while True:
     source_bucket = gcs_client.bucket(src_bucket_name)
-
-    if is_not_empty(snapshot_to_restore):
-        snapshot_bucket = gcs_client.bucket(snapshot_to_restore)
-        copy_blobs(gcs_client, snapshot_bucket, source_bucket)
-
     current_date = strftime(date_format)
     current_datetime = datetime.datetime.now()
     if is_not_empty(add_days_to_current_date):
@@ -36,7 +38,7 @@ while True:
 
     delete_old_buckets(current_datetime, truncated_name, gcs_client, date_format, retention)
 
-    target_bucket = find_or_create_bucket(gcs_client, location, truncated_name)
+    target_bucket = recreate_bucket(gcs_client, location, truncated_name)
 
     copy_blobs(gcs_client, source_bucket, target_bucket)
 

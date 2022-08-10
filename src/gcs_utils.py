@@ -17,7 +17,7 @@ def copy_blob(blob, source_bucket, target_bucket):
     except Exception as e:
         log_msg("ERROR", "[copy_blob] unexpected error : {}".format(e))
 
-def find_or_create_bucket(gcs_client, location, name):
+def recreate_bucket(gcs_client, location, name):
     try:
         target_bucket = gcs_client.get_bucket(name)
         target_bucket.delete(force=True)
