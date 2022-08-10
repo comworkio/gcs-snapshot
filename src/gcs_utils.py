@@ -13,14 +13,25 @@ def copy_blob(blob, source_bucket, target_bucket):
     log_msg("INFO", "[copy_blob] copy file {}".format(file_name))
     src_blob = source_bucket.blob(file_name)
     try:
-        blob_copy = source_bucket.copy_blob(src_blob, target_bucket, file_name)
+        source_bucket.copy_blob(src_blob, target_bucket, file_name)
     except Exception as e:
         log_msg("ERROR", "[copy_blob] unexpected error : {}".format(e))
+
+def erase_bucket(gcs_client, name):
+    blobs = gcs_client.list_blobs(name)
+    for blob in blobs:
+        log_msg("INFO", "[erase_bucket] deleting {}".format(blob.name))
+        blob.delete()
 
 def recreate_bucket(gcs_client, location, name):
     try:
         target_bucket = gcs_client.get_bucket(name)
-        target_bucket.delete(force=True)
+        try:
+            target_bucket.delete(force=True)
+        except Exception as de:
+            log_msg("INFO", "[recreate_bucket] Refusing to delete the bucket {}, de = {}... removing all files".format(name, de))
+            erase_bucket(gcs_client, name)
+            target_bucket.delete(force=True)
     except Exception as e:
         log_msg("INFO", "[recreate_bucket] Trying to create bucket {}, e = {}".format(name, e))
     
