@@ -35,7 +35,6 @@ It copy a GCS bucket into a new one (with the same name suffixed by `-snap-{date
 * `GCS_LOCATION`: GCS location (i.e: `europe-west1`)
 * `GCS_SRC_BUCKET_NAME` (required): the source bucket you want to snapshot
 * `SNAPSHOT_TO_RESTORE` (required): the snapshot bucket to restore
-* `WAIT_TIME` (optional): if you want the pod to stay alive like a service worker, it will wait this time (in seconds). Otherwise, it'll `exit 0` in order to allow you to use the image in a cron job or a pipeline/workflow using something else.
 * `LOG_LEVEL` (optional): log level, default `INFO`
 * `GOOGLE_APPLICATION_CREDENTIALS` (optional): path the the service account json file (to mount as a volume). No need when you're using Kubernetes cloud identity
 
