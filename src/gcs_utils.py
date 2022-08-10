@@ -63,5 +63,5 @@ def delete_old_buckets(current_date, target_name, gcs_client, date_format, reten
         d = (current_date - creation_date).days
         if d >= retention:
             log_msg("INFO", "[delete_old_buckets] delete bucket {} because d = {} >= r = {}".format(bucket.name, d, retention))
-            erase_bucket(bucket_name)
+            erase_bucket(gcs_client, bucket_name)
             bucket.delete(force=True)
