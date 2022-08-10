@@ -54,7 +54,12 @@ def delete_old_buckets(current_date, target_name, gcs_client, date_format, reten
     prefix = re.sub("-snap-[0-9]+$", '', target_name)
     for bucket in gcs_client.list_buckets(prefix = prefix):
         bucket_name = bucket.name
-        creation_date = datetime.strptime(bucket_name, "{}-snap-{}".format(prefix, date_format))
+        try:
+            creation_date = datetime.strptime(bucket_name, "{}-snap-{}".format(prefix, date_format))
+        except Exception as e:
+            log_msg("INFO", "[delete_old_buckets] The bucket {} will not be deleted because of : e = {}".format(bucket_name, e))
+            continue
+
         d = (current_date - creation_date).days
         if d >= retention:
             log_msg("INFO", "[delete_old_buckets] delete bucket {} because d = {} >= r = {}".format(bucket.name, d, retention))
