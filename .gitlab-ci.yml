@@ -14,7 +14,7 @@ mirror:
 deliver:
   stage: deliver
   script:
-    - setsid ./ci/docker-deliver.sh "gcs-snapshot" "1.1"
+    - setsid ./ci/docker-deliver.sh "gcs-snapshot" "1.2"
   only:
     refs:
       - /^(main.*)$/

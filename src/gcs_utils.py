@@ -22,7 +22,7 @@ def recreate_bucket(gcs_client, location, name):
         target_bucket = gcs_client.get_bucket(name)
         target_bucket.delete(force=True)
     except Exception as e:
-        log_msg("INFO", "[find_or_create_bucket] Trying to create bucket {}, e = {}".format(name, e))
+        log_msg("INFO", "[recreate_bucket] Trying to create bucket {}, e = {}".format(name, e))
     
     target_bucket = gcs_client.bucket(name)
     target_bucket.create(location = location)
