@@ -2,7 +2,7 @@ from google.cloud import storage
 from time import sleep, strftime
 from logger_utils import log_msg
 from common_utils import is_not_empty
-from gcs_utils import recreate_bucket, delete_old_buckets, copy_blobs
+from gcs_utils import reinit_bucket, delete_old_buckets, copy_blobs
 
 import os
 import sys
@@ -22,7 +22,7 @@ gcs_client = storage.Client(project = gcp_project)
 if is_not_empty(snapshot_to_restore):
     log_msg("INFO", "Restore {} to {}".format(snapshot_to_restore, src_bucket_name))
     snapshot_bucket = gcs_client.bucket(snapshot_to_restore)
-    target_bucket = recreate_bucket(gcs_client, location, src_bucket_name)
+    target_bucket = reinit_bucket(gcs_client, location, src_bucket_name)
     copy_blobs(gcs_client, snapshot_bucket, target_bucket)
     sys.exit()
 
@@ -38,7 +38,7 @@ while True:
 
     delete_old_buckets(current_datetime, truncated_name, gcs_client, date_format, retention)
 
-    target_bucket = recreate_bucket(gcs_client, location, truncated_name)
+    target_bucket = reinit_bucket(gcs_client, location, truncated_name)
 
     copy_blobs(gcs_client, source_bucket, target_bucket)
 

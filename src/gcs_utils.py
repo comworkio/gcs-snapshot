@@ -21,23 +21,21 @@ def erase_bucket(gcs_client, name):
     blobs = gcs_client.list_blobs(name)
     for blob in blobs:
         log_msg("INFO", "[erase_bucket] deleting {}".format(blob.name))
-        blob.delete()
+        try:
+            blob.delete()
+        except Exception as e:
+            log_msg("INFO", "[erase_bucket] seems blob {} is not found, e = {}".format(blob.name, e))
 
-def recreate_bucket(gcs_client, location, name):
+def reinit_bucket(gcs_client, location, name):
     try:
         target_bucket = gcs_client.get_bucket(name)
-        try:
-            target_bucket.delete(force=True)
-        except Exception as de:
-            log_msg("INFO", "[recreate_bucket] Refusing to delete the bucket {}, de = {}... removing all files".format(name, de))
-            erase_bucket(gcs_client, name)
-            target_bucket.delete(force=True)
+        erase_bucket(gcs_client, name)
+        return target_bucket
     except Exception as e:
-        log_msg("INFO", "[recreate_bucket] Trying to create bucket {}, e = {}".format(name, e))
-    
-    target_bucket = gcs_client.bucket(name)
-    target_bucket.create(location = location)
-    return target_bucket
+        log_msg("INFO", "[reinit_bucket] Error when searching bucket {}, e = {} (we'll create it for you)".format(name, e))
+        target_bucket = gcs_client.bucket(name)
+        target_bucket.create(location = location)
+        return target_bucket
 
 def delete_old_buckets(current_date, target_name, gcs_client, date_format, retention):
     prefix = re.sub("-snap-[0-9]+$", '', target_name)
@@ -47,4 +45,5 @@ def delete_old_buckets(current_date, target_name, gcs_client, date_format, reten
         d = (current_date - creation_date).days
         if d >= retention:
             log_msg("INFO", "[delete_old_buckets] delete bucket {} because d = {} >= r = {}".format(bucket.name, d, retention))
+            erase_bucket(bucket_name)
             bucket.delete(force=True)
