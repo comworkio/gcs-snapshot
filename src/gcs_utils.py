@@ -17,7 +17,7 @@ def copy_blob(blob, source_bucket, target_bucket, retry):
     log_msg("INFO", "[copy_blob] copy file {}".format(file_name))
     src_blob = source_bucket.blob(file_name)
 
-    if i >= MAX_RETRY:
+    if retry >= MAX_RETRY:
         log_msg("ERROR", "[copy_blob] all retry have failed for blob {}, {}/{}".format(file_name, i, MAX_RETRY))
         return
 
