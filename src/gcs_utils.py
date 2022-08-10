@@ -10,10 +10,7 @@ MAX_RETRY = int(os.environ['MAX_RETRY'])
 def copy_blobs(gcs_client, src_bucket, target_bucket):
     blobs = gcs_client.list_blobs(src_bucket.name)
     for blob in blobs:
-        copy_blob(blob, src_bucket, target_bucket)
-
-def copy_blob(blob, source_bucket, target_bucket):
-    copy_blob(blob, source_bucket, target_bucket, 0)
+        copy_blob(blob, src_bucket, target_bucket, 0)
 
 def copy_blob(blob, source_bucket, target_bucket, retry):
     file_name = blob.name
