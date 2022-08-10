@@ -4,6 +4,8 @@ Google cloud storage snapshots.
 
 It copy a GCS bucket into a new one (with the same name suffixed by `-snap-{date}`) and keep a limited number of snapshots you'll be able to configure.
 
+There's also a "restore" mode to copy a specific snapshot to the source bucket.
+
 ## Table of contents
 
 [[_TOC_]]
