@@ -1,7 +1,11 @@
 import re
+import os
 
 from datetime import datetime
+from time import sleep
 from logger_utils import log_msg
+
+MAX_RETRY = int(os.environ['MAX_RETRY'])
 
 def copy_blobs(gcs_client, src_bucket, target_bucket):
     blobs = gcs_client.list_blobs(src_bucket.name)
@@ -9,13 +13,25 @@ def copy_blobs(gcs_client, src_bucket, target_bucket):
         copy_blob(blob, src_bucket, target_bucket)
 
 def copy_blob(blob, source_bucket, target_bucket):
+    copy_blob(blob, source_bucket, target_bucket, 0)
+
+def copy_blob(blob, source_bucket, target_bucket, retry):
     file_name = blob.name
     log_msg("INFO", "[copy_blob] copy file {}".format(file_name))
     src_blob = source_bucket.blob(file_name)
-    try:
-        source_bucket.copy_blob(src_blob, target_bucket, file_name)
-    except Exception as e:
-        log_msg("ERROR", "[copy_blob] unexpected error : {}".format(e))
+
+    if i >= MAX_RETRY:
+        log_msg("ERROR", "[copy_blob] all retry have failed for blob {}, {}/{}".format(file_name, i, MAX_RETRY))
+        return
+
+    for i in range(retry, MAX_RETRY):
+        try:
+            source_bucket.copy_blob(src_blob, target_bucket, file_name)
+            break
+        except Exception as e:
+            log_msg("ERROR", "[copy_blob] unexpected error : {}, retrying {}/{}".format(e, i, MAX_RETRY))
+            sleep(1)
+            copy_blob(blob, source_bucket, target_bucket, i)
 
 def erase_bucket(gcs_client, name):
     blobs = gcs_client.list_blobs(name)
