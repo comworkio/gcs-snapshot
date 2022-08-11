@@ -68,11 +68,8 @@ def delete_old_buckets(current_date, target_name, gcs_client, date_format, reten
 def compute_target_bucket_backup_name(single_gcs_mode, target_prefix, src_bucket_name, date_format):
     current_date = strftime(date_format)
 
-    if is_not_empty(target_prefix) and is_true(single_gcs_mode):
-        if target_name != target_prefix:
-            target_name = target_prefix
-        else:
-            target_name = "{}-bkp".format(target_prefix)
+    if is_not_empty(target_prefix) and is_true(single_gcs_mode) and src_bucket_name != target_prefix:
+        target_name = target_prefix
     elif is_true(single_gcs_mode):
         target_name = "{}-bkp".format(src_bucket_name)
     elif is_not_empty(target_prefix):
