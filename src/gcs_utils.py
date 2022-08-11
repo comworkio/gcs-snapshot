@@ -55,7 +55,10 @@ def reinit_bucket(gcs_client, location, name):
     except Exception as e:
         log_msg("INFO", "[reinit_bucket] Error when searching bucket {}, e = {} (we'll create it for you)".format(name, e))
         target_bucket = gcs_client.bucket(name)
-        target_bucket.create(location = location)
+        try:
+            target_bucket.create(location = location)
+        except Exception as e2:
+            log_msg("INFO", "[reinit_bucket] We don't have the right to recreate the bucket {}, e = {}".format(name, e2))
         return target_bucket
 
 def delete_old_dirs(current_date, target_name, gcs_client, date_format, retention, location):
