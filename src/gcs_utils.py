@@ -24,7 +24,7 @@ def copy_blob(blob, source_bucket, target_bucket, retry):
     try:
         source_bucket.copy_blob(src_blob, target_bucket, file_name)
     except Exception as e:
-        log_msg("ERROR", "[copy_blob] unexpected error : {}, retrying {}/{}".format(e, i, MAX_RETRY))
+        log_msg("ERROR", "[copy_blob] unexpected error : {}, retrying {}/{}".format(e, retry, MAX_RETRY))
         sleep(1)
         copy_blob(blob, source_bucket, target_bucket, retry+1)
 
