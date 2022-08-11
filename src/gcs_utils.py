@@ -39,7 +39,7 @@ def copy_blob(blob, source_bucket, target_bucket, retry, target_dir):
     except Exception as e:
         log_msg("ERROR", "[copy_blob] unexpected error : {}, retrying {}/{}".format(e, retry, MAX_RETRY))
         sleep(1)
-        copy_blob(blob, source_bucket, target_bucket, retry+1)
+        copy_blob(blob, source_bucket, target_bucket, retry+1, target_dir)
 
 def erase_bucket(gcs_client, name):
     blobs = gcs_client.list_blobs(name)
