@@ -2,8 +2,9 @@ import re
 import os
 
 from datetime import datetime
-from time import sleep
+from time import sleep, strftime
 from logger_utils import log_msg
+from common_utils import is_not_empty, is_true
 
 MAX_RETRY = int(os.environ['MAX_RETRY'])
 
@@ -63,3 +64,20 @@ def delete_old_buckets(current_date, target_name, gcs_client, date_format, reten
             log_msg("INFO", "[delete_old_buckets] delete bucket {} because d = {} >= r = {}".format(bucket.name, d, retention))
             erase_bucket(gcs_client, bucket_name)
             bucket.delete(force=True)
+
+def compute_target_bucket_backup_name(single_gcs_mode, target_prefix, src_bucket_name, date_format):
+    current_date = strftime(date_format)
+
+    if is_not_empty(target_prefix) and is_true(single_gcs_mode):
+        if target_name != target_prefix:
+            target_name = target_prefix
+        else:
+            target_name = "{}-bkp".format(target_prefix)
+    elif is_true(single_gcs_mode):
+        target_name = "{}-bkp".format(src_bucket_name)
+    elif is_not_empty(target_prefix):
+        target_name = "{}-bkp-{}".format(target_prefix, current_date)
+    else:
+        target_name = "{}-bkp-{}".format(src_bucket_name, current_date)
+    
+    return target_name[-63:]

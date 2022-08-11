@@ -1,8 +1,8 @@
 from google.cloud import storage
-from time import sleep, strftime
+from time import sleep
 from logger_utils import log_msg
-from common_utils import is_not_empty
-from gcs_utils import reinit_bucket, delete_old_buckets, copy_blobs
+from common_utils import is_not_empty, is_true, is_true
+from gcs_utils import reinit_bucket, delete_old_buckets, copy_blobs, compute_target_bucket_backup_name
 
 import os
 import sys
@@ -17,6 +17,7 @@ location = os.environ['GCS_LOCATION']
 add_days_to_current_date = os.getenv('ADD_DAYS_TO_CURRENT_DATE')
 snapshot_to_restore = os.getenv('SNAPSHOT_TO_RESTORE')
 target_prefix = os.getenv('GCS_TARGET_PREFIX')
+single_gcs_mode = os.getenv('GCS_TARGET_SINGLE_BUCKET_MODE')
 
 gcs_client = storage.Client(project = gcp_project)
 
@@ -29,17 +30,11 @@ if is_not_empty(snapshot_to_restore):
 
 while True:
     source_bucket = gcs_client.bucket(src_bucket_name)
-    current_date = strftime(date_format)
     current_datetime = datetime.datetime.now()
     if is_not_empty(add_days_to_current_date):
         current_datetime = current_datetime + datetime.timedelta(days = int(add_days_to_current_date))
 
-    if is_not_empty(target_prefix):
-        target_name = "{}-bkp-{}".format(target_prefix, current_date)
-    else:
-        target_name = "{}-bkp-{}".format(src_bucket_name, current_date)
-
-    truncated_name = target_name[-63:]
+    truncated_name = compute_target_bucket_backup_name(single_gcs_mode, target_prefix, src_bucket_name, date_format)
 
     delete_old_buckets(current_datetime, truncated_name, gcs_client, date_format, retention)
 
