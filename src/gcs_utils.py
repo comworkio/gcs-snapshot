@@ -21,14 +21,12 @@ def copy_blob(blob, source_bucket, target_bucket, retry):
         log_msg("ERROR", "[copy_blob] all retry have failed for blob {}, {}/{}".format(file_name, i, MAX_RETRY))
         return
 
-    for i in range(retry, MAX_RETRY):
-        try:
-            source_bucket.copy_blob(src_blob, target_bucket, file_name)
-            break
-        except Exception as e:
-            log_msg("ERROR", "[copy_blob] unexpected error : {}, retrying {}/{}".format(e, i, MAX_RETRY))
-            sleep(1)
-            copy_blob(blob, source_bucket, target_bucket, i)
+    try:
+        source_bucket.copy_blob(src_blob, target_bucket, file_name)
+    except Exception as e:
+        log_msg("ERROR", "[copy_blob] unexpected error : {}, retrying {}/{}".format(e, i, MAX_RETRY))
+        sleep(1)
+        copy_blob(blob, source_bucket, target_bucket, retry+1)
 
 def erase_bucket(gcs_client, name):
     blobs = gcs_client.list_blobs(name)
