@@ -8,7 +8,7 @@ from common_utils import is_not_empty, is_true
 
 MAX_RETRY = int(os.environ['MAX_RETRY'])
 
-def copy_blobs(gcs_client, src_bucket, target_bucket, src_dir = '/', target_dir = ''):
+def copy_blobs(gcs_client, src_bucket, target_bucket, src_dir = None, target_dir = ''):
     blobs = gcs_client.list_blobs(
         bucket_or_name = src_bucket.name,
         prefix = src_dir
@@ -18,10 +18,11 @@ def copy_blobs(gcs_client, src_bucket, target_bucket, src_dir = '/', target_dir 
         copy_blob(blob, src_bucket, target_bucket, 0, target_dir)
 
 def copy_blob(blob, source_bucket, target_bucket, retry, target_dir):
+    file_name = blob.name
     if is_not_empty(target_dir):
-        file_name = "{}/{}".format(target_dir, blob.name)
+        new_name = "{}/{}".format(target_dir, file_name)
     else:
-        file_name = blob.name
+        new_name = file_name
     
     log_msg("INFO", "[copy_blob] copy file {}".format(file_name))
     src_blob = source_bucket.blob(file_name)
@@ -31,7 +32,7 @@ def copy_blob(blob, source_bucket, target_bucket, retry, target_dir):
         return
 
     try:
-        source_bucket.copy_blob(src_blob, target_bucket, file_name)
+        source_bucket.copy_blob(src_blob, target_bucket, new_name)
     except Exception as e:
         log_msg("ERROR", "[copy_blob] unexpected error : {}, retrying {}/{}".format(e, retry, MAX_RETRY))
         sleep(1)
