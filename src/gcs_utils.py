@@ -8,14 +8,18 @@ from common_utils import is_not_empty, is_true
 
 MAX_RETRY = int(os.environ['MAX_RETRY'])
 
-def copy_blobs(gcs_client, src_bucket, target_bucket, dir = ''):
-    blobs = gcs_client.list_blobs(src_bucket.name)
+def copy_blobs(gcs_client, src_bucket, target_bucket, src_dir = '/', target_dir = ''):
+    blobs = gcs_client.list_blobs(
+        bucket_or_name = src_bucket.name,
+        prefix = src_dir
+    )
+    
     for blob in blobs:
-        copy_blob(blob, src_bucket, target_bucket, 0, dir)
+        copy_blob(blob, src_bucket, target_bucket, 0, target_dir)
 
-def copy_blob(blob, source_bucket, target_bucket, retry, dir = ''):
-    if is_not_empty(dir):
-        file_name = "{}/{}".format(dir, blob.name)
+def copy_blob(blob, source_bucket, target_bucket, retry, target_dir):
+    if is_not_empty(target_dir):
+        file_name = "{}/{}".format(target_dir, blob.name)
     else:
         file_name = blob.name
     
