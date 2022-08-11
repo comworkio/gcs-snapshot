@@ -69,25 +69,24 @@ def reinit_bucket(gcs_client, location, name):
     return find_or_create_bucket_with_erase_f(gcs_client, location, name, erase_bucket)
 
 def delete_old_dirs(current_date, target_name, gcs_client, date_format, retention, location):
-    prefix = re.sub("^[0-9]{6,8}/", '', target_name)
     target_bucket = find_or_create_bucket(gcs_client, location, target_name)
-
-    blobs = gcs_client.list_blobs(
-        bucket_or_name=target_bucket,
-        prefix=prefix,
-        delimiter="/"
-    )
+    blobs = gcs_client.list_blobs(target_bucket)
 
     for blob in blobs:
+        match = re.match("^([0-9]{6,8})/.*$", blob.name)
+        if not match:
+            log_msg("INFO", "[delete_old_dirs] The file {} will not be deleted because it's not matching a date".format(blob.name))
+            continue
+
         try:
-            creation_date = datetime.strptime(blob.name, date_format)
+            creation_date = datetime.strptime(match.group(1), date_format)
         except Exception as e:
-            log_msg("INFO", "[delete_old_dirs] The directory {} will not be deleted because of : e = {}".format(blob.name, e))
+            log_msg("INFO", "[delete_old_dirs] The file {} will not be deleted because of : e = {}".format(blob.name, e))
             continue
 
         d = (current_date - creation_date).days
         if d >= retention:
-            log_msg("INFO", "[delete_old_dirs] delete directory {} because d = {} >= r = {}".format(blob.name, d, retention))
+            log_msg("INFO", "[delete_old_dirs] delete file {} because d = {} >= r = {}".format(blob.name, d, retention))
             blob.delete()
 
 def delete_old_buckets(current_date, target_name, gcs_client, date_format, retention):
