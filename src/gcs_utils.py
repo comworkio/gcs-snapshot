@@ -47,23 +47,30 @@ def erase_bucket(gcs_client, name):
         except Exception as e:
             log_msg("INFO", "[erase_bucket] seems blob {} is not found, e = {}".format(blob.name, e))
 
-def reinit_bucket(gcs_client, location, name):
+def find_or_create_bucket_with_erase_f(gcs_client, location, name, erase_function):
     try:
         target_bucket = gcs_client.get_bucket(name)
-        erase_bucket(gcs_client, name)
+        erase_function(gcs_client, name)
         return target_bucket
     except Exception as e:
-        log_msg("INFO", "[reinit_bucket] Error when searching bucket {}, e = {} (we'll create it for you)".format(name, e))
+        log_msg("INFO", "[find_or_create_bucket] Error when searching bucket {}, e = {} (we'll create it for you)".format(name, e))
         target_bucket = gcs_client.bucket(name)
         try:
             target_bucket.create(location = location)
         except Exception as e2:
-            log_msg("INFO", "[reinit_bucket] We don't have the right to recreate the bucket {}, e = {}".format(name, e2))
+            log_msg("INFO", "[find_or_create_bucket] We don't have the right to recreate the bucket {}, e = {}".format(name, e2))
+            erase_function(gcs_client, name)
         return target_bucket
+
+def find_or_create_bucket(gcs_client, location, name):
+    return find_or_create_bucket_with_erase_f(gcs_client, location, name, lambda x, y: None)
+
+def reinit_bucket(gcs_client, location, name):
+    return find_or_create_bucket_with_erase_f(gcs_client, location, name, erase_bucket)
 
 def delete_old_dirs(current_date, target_name, gcs_client, date_format, retention, location):
     prefix = re.sub("^[0-9]{6,8}/", '', target_name)
-    target_bucket = reinit_bucket(gcs_client, location, target_name)
+    target_bucket = find_or_create_bucket(gcs_client, location, target_name)
 
     blobs = gcs_client.list_blobs(
         bucket_or_name=target_bucket,
