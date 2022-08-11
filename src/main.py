@@ -34,11 +34,11 @@ while True:
     if is_not_empty(add_days_to_current_date):
         current_datetime = current_datetime + datetime.timedelta(days = int(add_days_to_current_date))
 
-    truncated_name = compute_target_bucket_backup_name(single_gcs_mode, target_prefix, src_bucket_name, date_format)
+    target_name = compute_target_bucket_backup_name(single_gcs_mode, target_prefix, src_bucket_name, date_format)
 
-    delete_old_buckets(current_datetime, truncated_name, gcs_client, date_format, retention)
+    delete_old_buckets(current_datetime, target_name, gcs_client, date_format, retention)
 
-    target_bucket = reinit_bucket(gcs_client, location, truncated_name)
+    target_bucket = reinit_bucket(gcs_client, location, target_name)
 
     copy_blobs(gcs_client, source_bucket, target_bucket)
 
