@@ -16,6 +16,7 @@ gcp_project = os.environ['GCP_PROJECT']
 location = os.environ['GCS_LOCATION']
 add_days_to_current_date = os.getenv('ADD_DAYS_TO_CURRENT_DATE')
 snapshot_to_restore = os.getenv('SNAPSHOT_TO_RESTORE')
+target_prefix = os.getenv('GCS_TARGET_PREFIX')
 
 gcs_client = storage.Client(project = gcp_project)
 
@@ -33,7 +34,11 @@ while True:
     if is_not_empty(add_days_to_current_date):
         current_datetime = current_datetime + datetime.timedelta(days = int(add_days_to_current_date))
 
-    target_name = "{}-snap-{}".format(src_bucket_name, current_date)
+    if is_not_empty(target_prefix):
+        target_name = "{}-bkp-{}".format(target_prefix, current_date)
+    else:
+        target_name = "{}-bkp-{}".format(src_bucket_name, current_date)
+
     truncated_name = target_name[-63:]
 
     delete_old_buckets(current_datetime, truncated_name, gcs_client, date_format, retention)

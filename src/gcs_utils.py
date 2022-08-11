@@ -51,11 +51,11 @@ def reinit_bucket(gcs_client, location, name):
         return target_bucket
 
 def delete_old_buckets(current_date, target_name, gcs_client, date_format, retention):
-    prefix = re.sub("-snap-[0-9]+$", '', target_name)
+    prefix = re.sub("-bkp-[0-9]+$", '', target_name)
     for bucket in gcs_client.list_buckets(prefix = prefix):
         bucket_name = bucket.name
         try:
-            creation_date = datetime.strptime(bucket_name, "{}-snap-{}".format(prefix, date_format))
+            creation_date = datetime.strptime(bucket_name, "{}-bkp-{}".format(prefix, date_format))
         except Exception as e:
             log_msg("INFO", "[delete_old_buckets] The bucket {} will not be deleted because of : e = {}".format(bucket_name, e))
             continue

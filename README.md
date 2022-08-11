@@ -2,7 +2,7 @@
 
 Google cloud storage snapshots.
 
-It copy a GCS bucket into a new one (with the same name suffixed by `-snap-{date}`) and keep a limited number of snapshots you'll be able to configure.
+It copy a GCS bucket into a new one (with the same name suffixed by `-bkp-{date}`) and keep a limited number of snapshots you'll be able to configure.
 
 There's also a "restore" mode to copy a specific snapshot to the source bucket.
 
@@ -28,6 +28,7 @@ There's also a "restore" mode to copy a specific snapshot to the source bucket.
 * `GCS_SNAPSHOT_RETENTION` (required): the number of days to keep snapshots
 * `GCS_DEST_DATE_FORMAT` (optional): the date format (default: `%Y%m%d`)
 * `WAIT_TIME` (optional): if you want the pod to stay alive like a service worker, it will wait this time (in seconds). Otherwise, it'll `exit 0` in order to allow you to use the image in a cron job or a pipeline/workflow using something else.
+* `GCS_TARGET_PREFIX` (optional): if you want the backup bucket to get a specific prefix name (by default it'll pick the value of `GCS_SRC_BUCKET_NAME` and get the last 63 characters)
 * `LOG_LEVEL` (optional): log level, default `INFO`
 * `MAX_RETRY` (optional): max retry on copy blob (default to `5`)
 * `GOOGLE_APPLICATION_CREDENTIALS` (optional): path the the service account json file (to mount as a volume). No need when you're using Kubernetes cloud identity
