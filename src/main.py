@@ -18,6 +18,7 @@ add_days_to_current_date = os.getenv('ADD_DAYS_TO_CURRENT_DATE')
 snapshot_to_restore = os.getenv('SNAPSHOT_TO_RESTORE')
 target_prefix = os.getenv('GCS_TARGET_PREFIX')
 single_gcs_mode = os.getenv('GCS_TARGET_SINGLE_BUCKET_MODE')
+gcs_snapshot_date = os.getenv('GCS_SNAPSHOT_DATE')
 
 gcs_client = storage.Client(project = gcp_project)
 
@@ -25,7 +26,7 @@ if is_not_empty(snapshot_to_restore):
     log_msg("INFO", "Restore {} to {}".format(snapshot_to_restore, src_bucket_name))
     snapshot_bucket = gcs_client.bucket(snapshot_to_restore)
     target_bucket = reinit_bucket(gcs_client, location, src_bucket_name)
-    copy_blobs(gcs_client, snapshot_bucket, target_bucket, src_dir = snapshot_to_restore if is_not_empty(single_gcs_mode) else '/')
+    copy_blobs(gcs_client, snapshot_bucket, target_bucket, src_dir = gcs_snapshot_date if is_true(single_gcs_mode) and is_not_empty(gcs_snapshot_date) else '/')
     sys.exit()
 
 while True:
