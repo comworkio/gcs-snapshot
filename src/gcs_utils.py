@@ -49,6 +49,32 @@ def reinit_bucket(gcs_client, location, name):
         target_bucket.create(location = location)
         return target_bucket
 
+def get_folders_blobs_list(gcs_client, target_name, prefix = ''):
+    if prefix and not prefix.endswith('/'):
+        prefix += '/'
+
+    blobs = gcs_client.list_blobs(
+        bucket_or_name=target_name,
+        prefix=prefix,
+        delimiter="/"
+    )
+    next(blobs, ...)
+    return list(blobs)
+
+def delete_old_dirs(current_date, target_name, gcs_client, date_format, retention):
+    prefix = re.sub("[0-9]{6,8}$", '', target_name)
+    for blob in get_folders_blobs_list(gcs_client, target_name, prefix):
+        try:
+            creation_date = datetime.strptime(blob.name, date_format)
+        except Exception as e:
+            log_msg("INFO", "[delete_old_dirs] The bucket {} will not be deleted because of : e = {}".format(blob.name, e))
+            continue
+
+        d = (current_date - creation_date).days
+        if d >= retention:
+            log_msg("INFO", "[delete_old_dirs] delete directory {} because d = {} >= r = {}".format(blob.name, d, retention))
+            blob.delete()
+
 def delete_old_buckets(current_date, target_name, gcs_client, date_format, retention):
     prefix = re.sub("-bkp-[0-9]+$", '', target_name)
     for bucket in gcs_client.list_buckets(prefix = prefix):

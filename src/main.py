@@ -2,7 +2,7 @@ from google.cloud import storage
 from time import sleep
 from logger_utils import log_msg
 from common_utils import is_not_empty, is_true, is_true
-from gcs_utils import reinit_bucket, delete_old_buckets, copy_blobs, compute_target_bucket_backup_name
+from gcs_utils import reinit_bucket, delete_old_buckets, delete_old_dirs, copy_blobs, compute_target_bucket_backup_name
 
 import os
 import sys
@@ -36,7 +36,10 @@ while True:
 
     target_name = compute_target_bucket_backup_name(single_gcs_mode, target_prefix, src_bucket_name, date_format)
 
-    delete_old_buckets(current_datetime, target_name, gcs_client, date_format, retention)
+    if is_true(single_gcs_mode):
+        delete_old_dirs(current_datetime, target_name, gcs_client, date_format, retention)
+    else:
+        delete_old_buckets(current_datetime, target_name, gcs_client, date_format, retention)
 
     target_bucket = reinit_bucket(gcs_client, location, target_name)
 
