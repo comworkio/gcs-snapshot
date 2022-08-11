@@ -4,6 +4,8 @@ Google cloud storage snapshots.
 
 It copy a GCS bucket into a new one (with the same name suffixed by `-bkp-{date}`) and keep a limited number of snapshots you'll be able to configure.
 
+You can also choose to store all the backups in a single bucket and subfolders named with the backup's date (sometimes your service account doesn't have the right to dynamically create new buckets).
+
 There's also a "restore" mode to copy a specific snapshot to the source bucket.
 
 ## Table of contents
