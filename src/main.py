@@ -41,11 +41,6 @@ while True:
     if is_true(single_gcs_mode):
         delete_old_dirs(current_datetime, target_name, gcs_client, date_format, retention, location)
         target_bucket = find_or_create_bucket(gcs_client, location, target_name)
-    else:
-        delete_old_buckets(current_datetime, target_name, gcs_client, date_format, retention)
-        target_bucket = reinit_bucket(gcs_client, location, target_name)
-
-    if is_true(single_gcs_mode):
         copy_blobs(
             gcs_client = gcs_client, 
             src_bucket = source_bucket, 
@@ -53,6 +48,8 @@ while True:
             target_dir = current_date
         )
     else:
+        delete_old_buckets(current_datetime, target_name, gcs_client, date_format, retention)
+        target_bucket = reinit_bucket(gcs_client, location, target_name)
         copy_blobs(gcs_client, source_bucket, target_bucket)
 
     if is_not_empty(wait_time):
