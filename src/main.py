@@ -26,7 +26,7 @@ if is_not_empty(snapshot_to_restore):
     log_msg("INFO", "Restore {} to {}".format(snapshot_to_restore, src_bucket_name))
     snapshot_bucket = gcs_client.bucket(snapshot_to_restore)
     target_bucket = reinit_bucket(gcs_client, location, src_bucket_name)
-    copy_blobs(gcs_client, snapshot_bucket, target_bucket, src_dir = gcs_snapshot_date if is_true(single_gcs_mode) and is_not_empty(gcs_snapshot_date) else '/')
+    copy_blobs(gcs_client, snapshot_bucket, target_bucket, target_dir = "root#restore", src_dir = gcs_snapshot_date if is_true(single_gcs_mode) and is_not_empty(gcs_snapshot_date) else '/')
     sys.exit()
 
 while True:

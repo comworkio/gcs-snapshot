@@ -7,6 +7,7 @@ from logger_utils import log_msg
 from common_utils import is_not_empty, is_true
 
 MAX_RETRY = int(os.environ['MAX_RETRY'])
+REGEXP_DATE_FORMAT = os.environ['GCS_REGEXP_DATE_FORMAT']
 
 def copy_blobs(gcs_client, src_bucket, target_bucket, src_dir = None, target_dir = ''):
     blobs = gcs_client.list_blobs(
@@ -19,7 +20,9 @@ def copy_blobs(gcs_client, src_bucket, target_bucket, src_dir = None, target_dir
 
 def copy_blob(blob, source_bucket, target_bucket, retry, target_dir):
     file_name = blob.name
-    if is_not_empty(target_dir):
+    if is_not_empty(target_dir) and target_dir == "root#restore":
+        new_name = re.sub("^{}/".format(REGEXP_DATE_FORMAT), '', file_name)
+    elif is_not_empty(target_dir):
         new_name = "{}/{}".format(target_dir, file_name)
     else:
         new_name = file_name
@@ -73,7 +76,7 @@ def delete_old_dirs(current_date, target_name, gcs_client, date_format, retentio
     blobs = gcs_client.list_blobs(target_bucket)
 
     for blob in blobs:
-        match = re.match("^([0-9]{6,8})/.*$", blob.name)
+        match = re.match("^({})/.*$".format(REGEXP_DATE_FORMAT), blob.name)
         if not match:
             log_msg("INFO", "[delete_old_dirs] The file {} will not be deleted because it's not matching a date".format(blob.name))
             continue
