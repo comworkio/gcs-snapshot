@@ -39,7 +39,8 @@ There's also a "restore" mode to copy a specific snapshot to the source bucket.
 * `GCP_PROJECT` (required): gcp project
 * `GCS_LOCATION`: GCS location (i.e: `europe-west1`)
 * `GCS_SRC_BUCKET_NAME` (required): the source bucket you want to snapshot
-* `SNAPSHOT_TO_RESTORE` (required): the snapshot bucket to restore
+* `GCS_TARGET_SINGLE_BUCKET_MODE` (optional): `true` or `yes` if you want to store the backup in a single GCS bucket with subfolders (it's disabled by default and create dynamic GCS bucket backups)
+* `SNAPSHOT_TO_RESTORE` (required): the snapshot bucket or subfolder to restore
 * `LOG_LEVEL` (optional): log level, default `INFO`
 * `MAX_RETRY` (optional): max retry on copy blob (default to `5`)
 * `GOOGLE_APPLICATION_CREDENTIALS` (optional): path the the service account json file (to mount as a volume). No need when you're using Kubernetes cloud identity
