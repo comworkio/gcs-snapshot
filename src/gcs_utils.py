@@ -57,21 +57,17 @@ def reinit_bucket(gcs_client, location, name):
         target_bucket.create(location = location)
         return target_bucket
 
-def get_folders_blobs_list(gcs_client, target_name, prefix = ''):
-    if prefix and not prefix.endswith('/'):
-        prefix += '/'
+def delete_old_dirs(current_date, target_name, gcs_client, date_format, retention, location):
+    prefix = re.sub("^[0-9]{6,8}/", '', target_name)
+    target_bucket = reinit_bucket(gcs_client, location, target_name)
 
     blobs = gcs_client.list_blobs(
-        bucket_or_name=target_name,
+        bucket_or_name=target_bucket,
         prefix=prefix,
         delimiter="/"
     )
-    next(blobs, ...)
-    return list(blobs)
 
-def delete_old_dirs(current_date, target_name, gcs_client, date_format, retention):
-    prefix = re.sub("[0-9]{6,8}$", '', target_name)
-    for blob in get_folders_blobs_list(gcs_client, target_name, prefix):
+    for blob in blobs:
         try:
             creation_date = datetime.strptime(blob.name, date_format)
         except Exception as e:

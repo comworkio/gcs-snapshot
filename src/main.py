@@ -39,7 +39,7 @@ while True:
     target_name = compute_target_bucket_backup_name(single_gcs_mode, target_prefix, src_bucket_name, current_date)
 
     if is_true(single_gcs_mode):
-        delete_old_dirs(current_datetime, target_name, gcs_client, date_format, retention)
+        delete_old_dirs(current_datetime, target_name, gcs_client, date_format, retention, location)
     else:
         delete_old_buckets(current_datetime, target_name, gcs_client, date_format, retention)
 
