@@ -2,19 +2,23 @@ import re
 import os
 
 from datetime import datetime
-from time import sleep, strftime
+from time import sleep
 from logger_utils import log_msg
 from common_utils import is_not_empty, is_true
 
 MAX_RETRY = int(os.environ['MAX_RETRY'])
 
-def copy_blobs(gcs_client, src_bucket, target_bucket):
+def copy_blobs(gcs_client, src_bucket, target_bucket, dir = ''):
     blobs = gcs_client.list_blobs(src_bucket.name)
     for blob in blobs:
-        copy_blob(blob, src_bucket, target_bucket, 0)
+        copy_blob(blob, src_bucket, target_bucket, 0, dir)
 
-def copy_blob(blob, source_bucket, target_bucket, retry):
-    file_name = blob.name
+def copy_blob(blob, source_bucket, target_bucket, retry, dir = ''):
+    if is_not_empty(dir):
+        file_name = "{}/{}".format(dir, blob.name)
+    else:
+        file_name = blob.name
+    
     log_msg("INFO", "[copy_blob] copy file {}".format(file_name))
     src_blob = source_bucket.blob(file_name)
 
@@ -67,7 +71,7 @@ def delete_old_dirs(current_date, target_name, gcs_client, date_format, retentio
         try:
             creation_date = datetime.strptime(blob.name, date_format)
         except Exception as e:
-            log_msg("INFO", "[delete_old_dirs] The bucket {} will not be deleted because of : e = {}".format(blob.name, e))
+            log_msg("INFO", "[delete_old_dirs] The directory {} will not be deleted because of : e = {}".format(blob.name, e))
             continue
 
         d = (current_date - creation_date).days
@@ -91,9 +95,7 @@ def delete_old_buckets(current_date, target_name, gcs_client, date_format, reten
             erase_bucket(gcs_client, bucket_name)
             bucket.delete(force=True)
 
-def compute_target_bucket_backup_name(single_gcs_mode, target_prefix, src_bucket_name, date_format):
-    current_date = strftime(date_format)
-
+def compute_target_bucket_backup_name(single_gcs_mode, target_prefix, src_bucket_name, current_date):
     if is_not_empty(target_prefix) and is_true(single_gcs_mode) and src_bucket_name != target_prefix:
         target_name = target_prefix
     elif is_true(single_gcs_mode):

@@ -1,5 +1,5 @@
 from google.cloud import storage
-from time import sleep
+from time import sleep, strftime
 from logger_utils import log_msg
 from common_utils import is_not_empty, is_true, is_true
 from gcs_utils import reinit_bucket, delete_old_buckets, delete_old_dirs, copy_blobs, compute_target_bucket_backup_name
@@ -29,12 +29,13 @@ if is_not_empty(snapshot_to_restore):
     sys.exit()
 
 while True:
+    current_date = strftime(date_format)
     source_bucket = gcs_client.bucket(src_bucket_name)
     current_datetime = datetime.datetime.now()
     if is_not_empty(add_days_to_current_date):
         current_datetime = current_datetime + datetime.timedelta(days = int(add_days_to_current_date))
 
-    target_name = compute_target_bucket_backup_name(single_gcs_mode, target_prefix, src_bucket_name, date_format)
+    target_name = compute_target_bucket_backup_name(single_gcs_mode, target_prefix, src_bucket_name, current_date)
 
     if is_true(single_gcs_mode):
         delete_old_dirs(current_datetime, target_name, gcs_client, date_format, retention)
@@ -43,7 +44,10 @@ while True:
 
     target_bucket = reinit_bucket(gcs_client, location, target_name)
 
-    copy_blobs(gcs_client, source_bucket, target_bucket)
+    if is_true(single_gcs_mode):
+        copy_blobs(gcs_client, source_bucket, target_bucket, current_date)
+    else:
+        copy_blobs(gcs_client, source_bucket, target_bucket)
 
     if is_not_empty(wait_time):
         log_msg("INFO", "[main] waiting for {}".format(wait_time))
